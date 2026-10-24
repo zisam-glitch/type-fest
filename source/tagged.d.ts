@@ -1,5 +1,6 @@
 import type tag from 'tagged-tag';
 import type {UnionMember} from './union-member.d.ts';
+import type {Flavor} from './flavor.d.ts'; // For `@link`
 
 // Declaration emit cannot name the `tag` symbol unless the user's file imports it. So exporting a value whose inferred type contains the `[tag]` key directly (for example, after spreading a tagged object) fails with TS4023: https://github.com/microsoft/TypeScript/issues/64812
 // eslint-disable-next-line type-fest/require-exported-types
@@ -42,6 +43,8 @@ Create a [tagged type](https://medium.com/@KevinBGreene/surviving-the-typescript
 A type returned by `Tagged` can be passed to `Tagged` again, to create a type with multiple tags.
 
 A tag's name is usually a string (and must be a string, number, or symbol), but each application of a tag can also contain an arbitrary type as its "metadata". See {@link GetTagMetadata} for examples and explanation.
+
+Use {@link Flavor} instead when plain values of the underlying type should be accepted without a cast. A flavor proves nothing about a value.
 
 A type `A` returned by `Tagged` is assignable to another type `B` returned by `Tagged` if and only if:
   - the underlying (untagged) type of `A` is assignable to the underlying type of `B`;

@@ -60,6 +60,7 @@ export type {Optional} from './source/optional.d.ts';
 export type {Falsy} from './source/falsy.d.ts';
 export type {Truthy} from './source/truthy.d.ts';
 export type {Opaque, UnwrapOpaque, Tag, Tagged, GetTagMetadata, UnwrapTagged} from './source/tagged.d.ts';
+export type {Flavor} from './source/flavor.d.ts';
 export type {InvariantOf} from './source/invariant-of.d.ts';
 export type {SetOptional} from './source/set-optional.d.ts';
 export type {SetOptionalDeep} from './source/set-optional-deep.d.ts';

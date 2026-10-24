@@ -1,5 +1,20 @@
 import {expectTypeOf} from 'nz';
-import type {EmptyObject, Jsonifiable, Jsonify, JsonArray, JsonObject, JsonValue, LiteralToPrimitiveDeep, NegativeInfinity, Opaque, PositiveInfinity, Tagged, TupleOf, TypedArray} from '../index.d.ts';
+import type {
+	EmptyObject,
+	Flavor,
+	Jsonifiable,
+	Jsonify,
+	JsonArray,
+	JsonObject,
+	JsonValue,
+	LiteralToPrimitiveDeep,
+	NegativeInfinity,
+	Opaque,
+	PositiveInfinity,
+	Tagged,
+	TupleOf,
+	TypedArray,
+} from '../index.d.ts';
 
 // An interface has no implicit index signature, so this checks that `Jsonify` makes it assignable to `JsonValue`.
 // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
@@ -358,6 +373,26 @@ expectTypeOf<Jsonify<Tagged<[Date] | [number, number], 'T'>>>().toBe<[string] | 
 expectTypeOf<Jsonify<{point: Tagged<[number, number], 'Point'>}>>().toBe<{point: [number, number]}>();
 expectTypeOf<Jsonify<Array<Tagged<[Date, number], 'T'>>>>().toBe<Array<[string, number]>>();
 expectTypeOf<Jsonify<[Tagged<[Date, number], 'T'>, string]>>().toBe<[[string, number], string]>();
+
+// A flavored tuple keeps all its elements too, also with more than one flavor, and when flavors and tags are combined.
+expectTypeOf<Jsonify<Flavor<[Date, number], 'T'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Flavor<readonly [string, Date], 'T'>>>().toBe<[string, string]>();
+expectTypeOf<Jsonify<Flavor<[string, Date?], 'T'>>>().toBe<[string] | [string, string | null]>();
+expectTypeOf<Jsonify<Flavor<[string, ...Date[]], 'T'>>>().toBe<[string, ...string[]]>();
+expectTypeOf<Jsonify<Flavor<[], 'T'>>>().toBe<[]>();
+expectTypeOf<Jsonify<Flavor<[any, unknown, Date], 'T'>>>().toBe<[any, JsonValue, string]>();
+expectTypeOf<Jsonify<Flavor<Date[], 'T'>>>().toBe<string[]>();
+expectTypeOf<Jsonify<Flavor<TupleOf<200, Date>, 'T'>>>().toBe<TupleOf<200, string>>();
+expectTypeOf<Jsonify<Flavor<Flavor<[Date, number], 'A'>, 'B'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Flavor<Flavor<[Date, number], 'A'>, 'B' | 'C'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Flavor<[Date, number], 'A' | 'B'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Tagged<Flavor<[Date, number], 'A'>, 'B'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Flavor<Tagged<[Date, number], 'A'>, 'B'>>>().toBe<[string, number]>();
+expectTypeOf<Jsonify<Flavor<[Date] | [number, number], 'T'>>>().toBe<[string] | [number, number]>();
+expectTypeOf<Jsonify<{point: Flavor<[number, number], 'Point'>}>>().toBe<{point: [number, number]}>();
+expectTypeOf<Jsonify<Array<Flavor<[Date, number], 'T'>>>>().toBe<Array<[string, number]>>();
+expectTypeOf<Jsonify<[Flavor<[Date, number], 'T'>, string]>>().toBe<[[string, number], string]>();
+expectTypeOf<Jsonify<Flavor<[Flavor<number, 'Id'>, Date], 'T'>>>().toBe<[Flavor<number, 'Id'>, string]>();
 
 // A tagged array that contains itself is kept as it is, like an untagged one.
 type TaggedTree = string | Tagged<TaggedTree[], 'Tree'>;

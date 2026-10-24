@@ -6,8 +6,9 @@ import type {IsEqual} from './is-equal.d.ts';
 import type {IsNever} from './is-never.d.ts';
 import type {IsUnknown} from './is-unknown.d.ts';
 import type {NegativeInfinity, PositiveInfinity} from './numeric.d.ts';
-import type {TagContainer, UnwrapTagged} from './tagged.d.ts';
+import type {Tag, TagContainer, UnwrapTagged, tag} from './tagged.d.ts';
 import type {TypedArray} from './typed-array.d.ts';
+import type {UnionMember} from './union-member.d.ts';
 import type {UnknownArray} from './unknown-array.d.ts';
 
 // `Function` matches a call signature, both construct signatures, and the `Function` interface itself, none of which `JSON.stringify` writes.
@@ -51,12 +52,32 @@ type JsonifyList<T extends UnknownArray, Result extends UnknownArray = []> = T e
 						: Array<JsonifyListItem<T[number]>>
 		: [...Result, ...JsonifyList<T>];
 
-// TypeScript cannot infer the elements of a tuple that is intersected with an object type, so the tag of a tagged tuple is removed first. `JSON.stringify` drops the tag's symbol key anyway. A tagged array of unknown length keeps its tag, so that `ContainsItself` still matches an array that contains itself.
-type UntagTuple<T extends UnknownArray> = T extends TagContainer<unknown>
+// TypeScript cannot infer the elements of a tuple that is intersected with an object type, so the tags and flavors of a tuple are removed first. `JSON.stringify` drops the tag's symbol key anyway. A tagged or flavored array of unknown length keeps its tag, so that `ContainsItself` still matches an array that contains itself.
+type UntagTuple<T extends UnknownArray> = typeof tag extends keyof T
 	? IsArrayOfUnknownLength<T> extends true
 		? T
-		: UnwrapTagged<T>
+		: RemoveFlavors<T extends TagContainer<unknown> ? UnwrapTagged<T> : T>
 	: T;
+
+// Removes the `Flavor` layers one at a time, like `UnwrapTagged` does for tags. Every order of removing them ends at the same type, so following only one of them is enough.
+type RemoveFlavors<T> = T extends unknown
+	? typeof tag extends keyof T
+		? [RemoveFlavor<T>] extends [never]
+			? T
+			: RemoveFlavors<UnionMember<RemoveFlavor<T>>>
+		: T
+	: never;
+
+// A flavor applied with a single name is a layer of its own, and a flavor applied with a union of names is one layer holding all of them, so both shapes are matched. The match is exact, because a flavor always has `unknown` metadata. A result that is still the input is dropped, so that the recursion always makes progress. The check cannot be assignability, as with tags, because a plain value is assignable to its flavor.
+type RemoveFlavor<T, Names extends PropertyKey = keyof NonNullable<T[typeof tag & keyof T]>> =
+	| {
+		[Name in Names]: T extends infer Underlying & Partial<Tag<Name, unknown>>
+			? IsEqual<Underlying, T> extends true ? never : Underlying
+			: never
+	}[Names]
+	| (T extends infer Underlying & Partial<Tag<Names, unknown>>
+		? IsEqual<Underlying, T> extends true ? never : Underlying
+		: never);
 
 // Whether the array is one of its own item types. Distributes over the item types so that each one is compared with the array on its own.
 type ContainsItself<T extends UnknownArray, Item = T[number]> = Item extends unknown ? IsEqual<Item, T> : never;
@@ -87,7 +108,7 @@ Note: A tagged primitive, like `Tagged<number, 'UserId'>`, keeps its tag, becaus
 
 Note: An array type that contains itself, like `Json[]` in `type Json = string | Json[]`, cannot be transformed without infinite recursion. It stays unchanged when it is already JSON, and otherwise becomes `JsonValue[]`. A cycle through a tuple, like `type Pair = string | [Pair, Pair]`, or through more than one array type, like `type A = string | B[]` with `type B = number | A[]`, is too deep to transform.
 
-Note: A tuple intersected with an object type other than a tag, like `[string, number] & {extra: true}`, can lose elements, because TypeScript cannot infer the elements of such a tuple. A tagged tuple, like `Tagged<[number, number], 'Point'>`, is not affected.
+Note: A tuple intersected with an object type other than a tag, like `[string, number] & {extra: true}`, can lose elements, because TypeScript cannot infer the elements of such a tuple. A tagged or flavored tuple, like `Tagged<[number, number], 'Point'>`, is not affected.
 
 @remarks
 

@@ -144,6 +144,7 @@ Click the type names for complete docs.
 - [`ReadonlyDeep`](source/readonly-deep.d.ts) - Create a deeply immutable version of another type.
 - [`LiteralUnion`](source/literal-union.d.ts) - Create a union type by combining primitive types and literal types without sacrificing auto-completion in IDEs for the literal type part of the union.
 - [`ExtractLiterals`](source/extract-literals.d.ts) - Extract the literal types from a union, removing wide types like `string` and infinite string types like `` `on${string}` ``.
+- [`Flavor`](source/flavor.d.ts) - Attach a name to a type without requiring a cast, so that differently named types cannot be mixed.
 - [`Tagged`](source/tagged.d.ts) - Create a [tagged type](https://medium.com/@KevinBGreene/surviving-the-typescript-ecosystem-branding-and-type-tagging-6cf6e516523d) that can support [multiple tags](https://github.com/sindresorhus/type-fest/issues/665) and [per-tag metadata](https://medium.com/@ethanresnick/advanced-typescript-tagged-types-improved-with-type-level-metadata-5072fc125fcf).
 - [`UnwrapTagged`](source/tagged.d.ts) - Get the untagged portion of a tagged type created with `Tagged`.
 - [`GetTagMetadata`](source/tagged.d.ts) - Given a type and a tag name, returns the metadata associated with that tag on that type.
@@ -437,6 +438,7 @@ Click the type names for complete docs.
 - `RequiredKeys` - See [`RequiredKeysOf`](source/required-keys-of.d.ts)
 - `Branded` - See [`Tagged`](source/tagged.d.ts)
 - `Opaque` - See [`Tagged`](source/tagged.d.ts)
+- `Label` - See [`Flavor`](source/flavor.d.ts)
 - `SetElement` - See [`IterableElement`](source/iterable-element.d.ts)
 - `SetEntry` - See [`IterableElement`](source/iterable-element.d.ts)
 - `SetValues` - See [`IterableElement`](source/iterable-element.d.ts)
