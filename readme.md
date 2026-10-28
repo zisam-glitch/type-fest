@@ -136,6 +136,7 @@ Click the type names for complete docs.
 - [`PickReadonly`](source/pick-readonly.d.ts) - Pick only the `readonly` properties from the given object type, leaving out the writable ones.
 - [`PickNonNever`](source/pick-non-never.d.ts) - Pick only the properties of the given object type that do not have the `never` type.
 - [`PartialDeep`](source/partial-deep.d.ts) - Create a deeply optional version of another type.
+- [`PartialOnUndefined`](source/partial-on-undefined.d.ts) - Create a version of another type where all keys accepting `undefined` type are set to optional.
 - [`PartialOnUndefinedDeep`](source/partial-on-undefined-deep.d.ts) - Create a deep version of another type where all keys accepting `undefined` type are set to optional.
 - [`UndefinedOnPartialDeep`](source/undefined-on-partial-deep.d.ts) - Create a deep version of another type where all optional keys are set to also accept `undefined`.
 - [`UndefinableDeep`](source/undefinable-deep.d.ts) - Create a deep version of another type where leaf values also accept `undefined`, keeping object containers present.
