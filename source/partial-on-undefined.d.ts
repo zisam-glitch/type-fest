@@ -34,12 +34,18 @@ const testSettings: PartialOnUndefined<Settings> = {
 };
 ```
 
+How it works:
+1. Filters keys where `undefined extends ObjectType[KeyType]`, creating a partial object type with optional properties.
+2. Combines the newly optional properties with the remaining unaffected keys, keeping index signatures intact.
+
+@see {@link https://github.com/sindresorhus/type-fest/issues/714 Discussion in #714}
+
 @category Object
 */
-export type PartialOnUndefined<T> = T extends Record<any, any> | undefined
-	? {[KeyType in keyof T as undefined extends T[KeyType] ? If<IsUnknown<T[KeyType]>, never, KeyType> : never]?: T[KeyType]} extends infer U
-		? SimplifyObject<{[KeyType in keyof T as KeyType extends LiteralKeyOf<U> ? never : KeyType]: T[KeyType]} & U>
+export type PartialOnUndefined<ObjectType> = ObjectType extends Record<any, any> | undefined
+	? {[KeyType in keyof ObjectType as undefined extends ObjectType[KeyType] ? If<IsUnknown<ObjectType[KeyType]>, never, KeyType> : never]?: ObjectType[KeyType]} extends infer PartialType
+		? SimplifyObject<{[KeyType in keyof ObjectType as KeyType extends LiteralKeyOf<PartialType> ? never : KeyType]: ObjectType[KeyType]} & PartialType>
 		: never
-	: T;
+	: ObjectType;
 
 export {};
